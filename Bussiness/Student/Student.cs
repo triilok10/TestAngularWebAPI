@@ -228,6 +228,31 @@ namespace Bussiness.Student
         public async Task<CommanMst> EditStudent(StudentRequest pStudent)
         {
             CommanMst mst = new CommanMst();
+            if (!string.IsNullOrEmpty(pStudent.studentPhoto))
+            {
+                string fileExtension = pStudent.fileExtension;
+
+                if (string.IsNullOrEmpty(fileExtension) || !new[] { "jpg", "jpeg", "png", "gif" }.Contains(fileExtension.ToLower()))
+                {
+                    return mst;
+                }
+
+                byte[] imageBytes = Convert.FromBase64String(pStudent.studentPhoto.Split(',')[1]);
+
+                var fileName = $"{pStudent.firstName}" + $"{DateTime.Now}.{fileExtension}";
+
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedPhotos");
+
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                var filePath = Path.Combine(directoryPath, fileName);
+                await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
+            }
+
+
+
             try
             {
                 using (SqlConnection con = new SqlConnection(_ConnectionString))
@@ -275,7 +300,7 @@ namespace Bussiness.Student
         public async Task<CommanMst> ClassMasterResponse()
         {
             CommanMst mst = new CommanMst();
-            List<DropdownResponse> classList = new List<DropdownResponse>();  
+            List<DropdownResponse> classList = new List<DropdownResponse>();
 
             try
             {
@@ -305,7 +330,7 @@ namespace Bussiness.Student
             }
             catch (Exception ex)
             {
-                
+
                 throw;
             }
             mst.Status = 200;
@@ -315,5 +340,41 @@ namespace Bussiness.Student
             return mst;
         }
 
+        public async Task<CommanMst> DeleteStudent(int StudentID)
+        {
+            CommanMst mst = new CommanMst();
+            try
+            {
+                using (SqlConnection con = new SqlConnection(_ConnectionString))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand("SP_Student", con);
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Action", "DeleteStudent");
+                    cmd.Parameters.AddWithValue("@StudentID", StudentID);
+
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+
+                            mst.Status = Convert.ToInt32(rdr["Status"]);
+                            mst.Message = Convert.ToString(rdr["Message"]);
+                        }
+                        else
+                        {
+                            mst.Status = 404;
+                            mst.Message = "Error in Deleting.";
+                        }
+                    }
+                    con.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return mst;
+        }
     }
 }

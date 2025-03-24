@@ -15,5 +15,6 @@ namespace Bussiness.Student
         Task<StateDistrictResponse> StateDistrictResponse(int? StateID);
         Task<CommanMst> ClassMasterResponse();
         Task<CommanMst> EditStudent(StudentRequest pStudent);
+        Task<CommanMst> DeleteStudent(int StudentID);
     }
 }

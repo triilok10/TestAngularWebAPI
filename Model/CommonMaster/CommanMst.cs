@@ -16,6 +16,8 @@ namespace Model.CommonMaster
     public class StudentRequest
     {
         public int studentID { get; set; }
+        public string studentPhoto { get; set; }
+        public string fileExtension { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string mobileNumber { get; set; }

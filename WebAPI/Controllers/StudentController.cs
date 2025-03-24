@@ -66,5 +66,12 @@ namespace WebAPI.Controllers
             var result = await _Student.ClassMasterResponse();
             return result;
         }
+
+        [HttpDelete]
+        public async Task<CommanMst> DeleteStudent(int StudentID)
+        {
+            var result = await _Student.DeleteStudent(StudentID);
+            return result;
+        }
     }
 }
